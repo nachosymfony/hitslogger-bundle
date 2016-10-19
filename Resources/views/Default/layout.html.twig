@@ -1,0 +1,59 @@
+<html>
+<head>
+    <title>{% block title 'Hits logger' %}</title>
+	<style><!--
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            text-align: center;
+        }
+
+        table.x{
+            border-collapse: collapse;
+            align: center;
+        }
+
+        table.x,
+        table.x th,
+        table.x td{
+            border: solid 1px black;
+            padding: 3px;
+        }
+
+        table.x th{
+            background: #bbb;
+        }
+        //-->
+    </style>
+</head>
+<body><a name="top"></a>
+
+<p align="right">
+	<a href="ix.php?time_offset=0">today</a> |
+	<a href="ix.php?time_offset=1">yesterday</a> |
+	<a href="ix.php?time_offset=2">2 days ago</a> |
+
+	<? $info = $r->info() ?>
+
+	redis memory: <?=$info["used_memory_human"] ?>
+</p>
+
+<center>
+
+<h1><?=$site ?></h1>
+
+<? if ($time_offset) : ?>
+<p>(Time Offset = <?=$time_offset ?>)</p>
+<? endif ?>
+
+<hr />
+{% block content %}
+{% endblock %}
+<hr />
+
+</center>
+</body>
+</html>

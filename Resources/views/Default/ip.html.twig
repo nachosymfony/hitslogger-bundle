@@ -1,0 +1,28 @@
+{% extends "nacholibreAdminBundle::layout.html.twig" %}
+
+{% import 'nacholibreHitsLoggerBundle:Default:macros.html.twig' as macros %}
+
+{% block pageHeaderTitle 'IP Stats: ' ~ ip  %}
+
+{% block content %}
+{{ parent() }}
+
+{{ macros.renderIPHitsTable(ipData) }}
+<hr>
+<h2>Last clicks</h2>
+
+<table border="1" class="x">
+	<tr>
+		<th>URL</th>
+		<th>Referal</th>
+		<th>Time</th>
+	</tr>
+    {% for clickData in hitsLogger.getIPLastClicks(ip) %}
+	<tr>
+        <td>{{ clickData.url }}</td>
+        <td>{{ clickData.referal }}</td>
+        <td>{{ clickData.time | date('Y-m-d H:i:s') }}</td>
+	</tr>
+    {% endfor %}
+</table>
+{% endblock %}

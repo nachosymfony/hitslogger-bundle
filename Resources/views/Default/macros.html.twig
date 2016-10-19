@@ -1,0 +1,41 @@
+{% macro renderIPHitsTable(visitsData) %}
+    {% set dateFormat = 'Y-m-d H:i:s' %}
+    <table border="1" class="x">
+        <tr>
+            <th>IP</th>
+            <th>Hits</th>
+            <th>First</th>
+            <th>Last</th>
+            <th>UA</th>
+            <th>Referal</th>
+
+            <th>&nbsp;</th>
+        </tr>
+    {% for ip, data in visitsData %}
+        <tr>
+            <td>
+                <a href="http://whois.domaintools.com/{{ ip }}" target="dt" target='_blank'>{{ ip }}</a>&nbsp;
+            </td>
+            <td align="right">
+                {{ data.count }}
+            </td>
+            <td>
+                {{ data.first | date(dateFormat) }}
+            </td>
+            <td>
+                {{ data.last | date(dateFormat) }}
+            </td>
+            <td>
+                {{ data.ua }}
+            </td>
+            <td>
+                {{ data.referal }}
+            </td>
+
+            <td>
+                <a href="{{ path('nacholibre.hits_logger.ip.show', {ip: ip}) }}">details</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endmacro %}

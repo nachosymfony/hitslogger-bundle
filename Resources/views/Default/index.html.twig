@@ -1,0 +1,78 @@
+{% extends "nacholibreAdminBundle::layout.html.twig" %}
+
+{% import 'nacholibreHitsLoggerBundle:Default:macros.html.twig' as macros %}
+
+{% block pageHeaderTitle 'Hits logger' %}
+
+{% block content %}
+{{ parent() }}
+<div class='row'>
+    <div class='col-md-12'>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 0}) }}' class='btn btn-default btn-sm'>Today</a>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 1}) }}' class='btn btn-default btn-sm'>Yesterday</a>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 2}) }}' class='btn btn-default btn-sm'>2 days ago</a>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <h2>Visits</h2>
+        <hr>
+        <table border="1" class="x">
+            <tr>
+                <th>&nbsp;</th>
+                <th>Unique</th>
+                <th>Reload</th>
+            </tr>
+            <tr>
+                <td>Daily</td>
+                <td align="right">{{ hitsLogger.getDayUniqueVisits() }}</td>
+                <td align="right">{{ hitsLogger.getDayAllVisits() }}</td>
+            </tr>
+            <tr>
+                <td>Montly</td>
+                <td align="right">{{ hitsLogger.getMonthUniqueVisits() }}</td>
+                <td align="right">{{ hitsLogger.getMonthAllVisits() }}</td>
+            </tr>
+        </table>
+        <hr>
+        <h2>Bots</h2>
+        <hr>
+        <table border="1" class="x">
+            <tr>
+                <th rowspan="2">Bot</th>
+                <th colspan="2">Reloads</th>
+                <th rowspan="2">&nbsp;</th>
+            </tr>
+            <tr>
+                <th>Daily</th>
+                <th>Montly</th>
+            </tr>
+            {% for botUserAgent, hits in hitsLogger.getBotHits() %}
+            <tr>
+                <td>{{ botUserAgent }}</td>
+                <td align="right">{{ hits.daily }}</td>
+                <td align="right">{{ hits.monthly }}</td>
+                <td><a href="#{{ botUserAgent }}">jump to data</a></td>
+            </tr>
+            {% endfor %}
+            <tr>
+                {% set stats = hitsLogger.getBotHitsStats() %}
+                <th>Total bots</th>
+                <th>{{ stats.daily }}</th>
+                <th>{{ stats.monthly }}</th>
+                <th>&nbsp;</th>
+            </tr>
+        </table>
+        <hr>
+        <h2>Regular users top clicks</h2>
+        {{ macros.renderIPHitsTable(hitsLogger.getNormalUserHitsData()) }}
+        <hr>
+        {% for userAgentName, userAgentHitsData in hitsLogger.getBotHitsData() %}
+        <h2>{{ userAgentName }}</h2>
+        {{ macros.renderIPHitsTable(userAgentHitsData) }}
+        <hr>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
