@@ -1,7 +1,7 @@
 services:
     nacholibre_services.hit_logger:
         class: nacholibre\HitsLoggerBundle\Services\HitLogger
-        arguments: ["@service_container"]
+        arguments: ["@service_container", "@security.token_storage"]
 
     nacholibre_listeners.request_listener:
         class: nacholibre\HitsLoggerBundle\EventListener\HitLoggerListener

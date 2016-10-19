@@ -2,11 +2,13 @@
 
 namespace nacholibre\HitsLoggerBundle\Services;
 
-class HitLogger {
-    function __construct($container) {
+class HitLogger implements HitLoggerInterface {
+    function __construct($container, $tokenStorage) {
         $redisServiceName = $container->getParameter('nacholibre.hits_logger.redis_service_name');
 
         $redisServiceName = str_replace('@', '', $redisServiceName);
+
+        $this->tokenStorage = $tokenStorage;
 
         $redis = $container->get($redisServiceName);
         $this->redis = $redis;
@@ -66,7 +68,12 @@ class HitLogger {
 
     private function makeTime() {
         $time = mktime(0, 0, 0, date("m")  , date("d") - $this->getDaysOffset(), date("Y"));
+
         return $time;
+    }
+
+    public function getTime() {
+        return $this->makeTime();
     }
 
     private function generateDayKey() {
@@ -196,7 +203,84 @@ class HitLogger {
         return $ik;
     }
 
+    public function generateLoggedUserKey($userID) {
+        $key = $this->getUniqueSiteIdentifier(). '_user_hits_' . $userID;
+        $dk = $this->generateDayKey();
+
+        return $dk . $key;
+    }
+
+    public function generateLoggedUserKeyAll() {
+        $key = $this->getUniqueSiteIdentifier() . '_user_hitss';
+        $dk = $this->generateDayKey();
+
+        return $dk . $key;
+    }
+
+    public function getTopUsersByRequests() {
+        $key = $this->generateLoggedUserKeyAll();
+
+        $data = [];
+
+        foreach($this->redis->zrevrange($key, 0, $this->getHistoryCount(), 'WITHSCORES') as $userID => $hitsCount) {
+            $userHits = $this->getLatestUserHits($userID);
+
+            $lastUserHit = null;
+
+            if (count($userHits)) {
+                $lastUserHit = $userHits[0];
+            }
+
+            $data[] = [
+                'hitsCount' => $hitsCount,
+                'lastUserHit' => $lastUserHit,
+            ];
+        }
+
+        return $data;
+    }
+
+    public function getLatestUserHits($userID) {
+        $key = $this->generateLoggedUserKey($userID);
+        $hits = $this->redis->lrange($key, 0, $this->getHistoryCount());
+
+        $hits = array_map(function($hit) {
+            return json_decode($hit);
+        }, $hits);
+
+        return $hits;
+    }
+
+    public function logLoggedUserHit($user, $clientIP, $httpReferer, $userAgent, $fullURI) {
+        $key = $this->generateLoggedUserKey($user->getID());
+
+        $keyAll = $this->generateLoggedUserKeyAll();
+
+        $package = [
+            'user_id' => $user->getID(),
+            'client_ip' => $clientIP,
+            'referer' => $httpReferer,
+            'user_agent' => $userAgent,
+            'fullURI' => $fullURI,
+            'date_made' => time(),
+        ];
+
+        $jsonData = json_encode($package);
+
+        $this->redis->lpush($key, $jsonData);
+        $this->redis->ltrim($key, 0, $this->getHistoryCount() - 1);
+        $this->redis->expire($key, 86400*30);
+
+        $this->redis->zincrby($keyAll, 1, $user->getID());
+        $this->redis->expire($keyAll, 86400*5);
+    }
+
     public function logHit($request) {
+        $user = null;
+        if ($this->tokenStorage->getToken()) {
+            $user = $this->tokenStorage->getToken()->getUser();
+        }
+
         $fullURI = $request->getUri();
         $clientIP = $request->getClientIP();
         $userAgent = $request->headers->get('User-Agent');
@@ -227,6 +311,10 @@ class HitLogger {
         $httpReferer = null;
         if ($request->server->get("HTTP_REFERER")) {
             $httpReferer = $request->server->get("HTTP_REFERER");
+        }
+
+        if ($user) {
+            $this->logLoggedUserHit($user, $clientIP, $httpReferer, $userAgent, $fullURI);
         }
 
         //$clientIP = '127.0.0.2';

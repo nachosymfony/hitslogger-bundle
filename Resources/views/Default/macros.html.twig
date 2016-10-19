@@ -1,16 +1,19 @@
 {% macro renderIPHitsTable(visitsData) %}
     {% set dateFormat = 'Y-m-d H:i:s' %}
-    <table border="1" class="x">
-        <tr>
-            <th>IP</th>
-            <th>Hits</th>
-            <th>First</th>
-            <th>Last</th>
-            <th>UA</th>
-            <th>Referal</th>
+    <table class='table table-bordered'>
+        <thead>
+            <tr>
+                <th width=130>IP</th>
+                <th width=70>Hits</th>
+                <th width=150>First hit</th>
+                <th width=150>Last hit</th>
+                <th>User Agent</th>
+                <th width=200>Referal</th>
 
-            <th>&nbsp;</th>
-        </tr>
+                <th width=130></th>
+            </tr>
+        </thead>
+        <tbody>
     {% for ip, data in visitsData %}
         <tr>
             <td>
@@ -25,17 +28,18 @@
             <td>
                 {{ data.last | date(dateFormat) }}
             </td>
-            <td>
+            <td style='font-size:12px;'>
                 {{ data.ua }}
             </td>
-            <td>
+            <td style='font-size:12px;'>
                 {{ data.referal }}
             </td>
 
             <td>
-                <a href="{{ path('nacholibre.hits_logger.ip.show', {ip: ip}) }}">details</a>
+                <a href="{{ path('nacholibre.hits_logger.ip.show', {ip: ip}) }}" class='btn btn-primary'>Details</a>
             </td>
         </tr>
     {% endfor %}
+        </tbody>
     </table>
 {% endmacro %}

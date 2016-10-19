@@ -16,6 +16,7 @@ class DefaultController extends Controller {
 
         return $this->render('nacholibreHitsLoggerBundle:Default:index.html.twig', [
             'hitsLogger' => $hitsLogger,
+            'offsetDays' => $offsetDays,
         ]);
     }
 
@@ -29,6 +30,18 @@ class DefaultController extends Controller {
             'hitsLogger' => $hitsLogger,
             'ip' => $ip,
             'ipData' => [$ip => $hitsLogger->getIPData($ip)]
+        ]);
+    }
+
+    /**
+     * @Route("/user/{id}", name="nacholibre.hits_logger.user.show")
+     */
+    public function userAction($id) {
+        $hitsLogger = $this->get('nacholibre_services.hit_logger');
+
+        return $this->render('nacholibreHitsLoggerBundle:Default:user.html.twig', [
+            'latestUserHits' => $hitsLogger->getLatestUserHits($id),
+            'userID' => $id,
         ]);
     }
 }

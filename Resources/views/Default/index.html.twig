@@ -2,76 +2,168 @@
 
 {% import 'nacholibreHitsLoggerBundle:Default:macros.html.twig' as macros %}
 
+{% block title 'Hits logger' %}
+
 {% block pageHeaderTitle 'Hits logger' %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .panel-title {
+        font-size:24px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 {{ parent() }}
 <div class='row'>
     <div class='col-md-12'>
-        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 0}) }}' class='btn btn-default btn-sm'>Today</a>
-        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 1}) }}' class='btn btn-default btn-sm'>Yesterday</a>
-        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 2}) }}' class='btn btn-default btn-sm'>2 days ago</a>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 0}) }}' class='btn btn-primary btn-sm {% if offsetDays == 0 %}active{% endif %}'>Today</a>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 1}) }}' class='btn btn-primary btn-sm {% if offsetDays == 1 %}active{% endif %}'>Yesterday</a>
+        <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 2}) }}' class='btn btn-primary btn-sm {% if offsetDays == 2 %}active{% endif %}'>2 days ago</a>
     </div>
 </div>
 <hr>
 <div class='row'>
     <div class='col-md-12'>
-        <h2>Visits</h2>
+        <h2>{{ hitsLogger.getTime() | date('j M, Y') }}</h2>
         <hr>
-        <table border="1" class="x">
-            <tr>
-                <th>&nbsp;</th>
-                <th>Unique</th>
-                <th>Reload</th>
-            </tr>
-            <tr>
-                <td>Daily</td>
-                <td align="right">{{ hitsLogger.getDayUniqueVisits() }}</td>
-                <td align="right">{{ hitsLogger.getDayAllVisits() }}</td>
-            </tr>
-            <tr>
-                <td>Montly</td>
-                <td align="right">{{ hitsLogger.getMonthUniqueVisits() }}</td>
-                <td align="right">{{ hitsLogger.getMonthAllVisits() }}</td>
-            </tr>
-        </table>
+    </div>
+    <div class='col-md-6'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Visits summary for {{ hitsLogger.getTime() | date('j M, Y') }}</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Unique</th>
+                            <th>Reload</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Daily ({{ hitsLogger.getTime() | date('j M, Y') }})</td>
+                        <td align="right">{{ hitsLogger.getDayUniqueVisits() }}</td>
+                        <td align="right">{{ hitsLogger.getDayAllVisits() }}</td>
+                    </tr>
+                    <tr>
+                        <td>Montly ({{ hitsLogger.getTime() | date('M Y') }})</td>
+                        <td align="right">{{ hitsLogger.getMonthUniqueVisits() }}</td>
+                        <td align="right">{{ hitsLogger.getMonthAllVisits() }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class='col-md-6'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Bots visits summary for {{ hitsLogger.getTime() | date('j M, Y') }}</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">Bot</th>
+                            <th colspan="2">Reloads</th>
+                            <th rowspan="2">&nbsp;</th>
+                        </tr>
+                        <tr>
+                            <th>Daily</th>
+                            <th>Montly</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for botUserAgent, hits in hitsLogger.getBotHits() %}
+                        <tr>
+                            <td>{{ botUserAgent }}</td>
+                            <td align="right">{{ hits.daily }}</td>
+                            <td align="right">{{ hits.monthly }}</td>
+                            <td><a href="#{{ botUserAgent }}">jump to data</a></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            {% set stats = hitsLogger.getBotHitsStats() %}
+                            <th>Total bots</th>
+                            <th>{{ stats.daily }}</th>
+                            <th>{{ stats.monthly }}</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Top clients by hits</h2>
+            </div>
+            <div class="panel-body">
+                {{ macros.renderIPHitsTable(hitsLogger.getNormalUserHitsData()) }}
+            </div>
+        </div>
         <hr>
-        <h2>Bots</h2>
-        <hr>
-        <table border="1" class="x">
-            <tr>
-                <th rowspan="2">Bot</th>
-                <th colspan="2">Reloads</th>
-                <th rowspan="2">&nbsp;</th>
-            </tr>
-            <tr>
-                <th>Daily</th>
-                <th>Montly</th>
-            </tr>
-            {% for botUserAgent, hits in hitsLogger.getBotHits() %}
-            <tr>
-                <td>{{ botUserAgent }}</td>
-                <td align="right">{{ hits.daily }}</td>
-                <td align="right">{{ hits.monthly }}</td>
-                <td><a href="#{{ botUserAgent }}">jump to data</a></td>
-            </tr>
-            {% endfor %}
-            <tr>
-                {% set stats = hitsLogger.getBotHitsStats() %}
-                <th>Total bots</th>
-                <th>{{ stats.daily }}</th>
-                <th>{{ stats.monthly }}</th>
-                <th>&nbsp;</th>
-            </tr>
-        </table>
-        <hr>
-        <h2>Regular users top clicks</h2>
-        {{ macros.renderIPHitsTable(hitsLogger.getNormalUserHitsData()) }}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">Top hits by logged users</h2>
+            </div>
+            <div class="panel-body">
+                <table class='table table-bordered'>
+                    <thead>
+                        <thead>
+                            <tr>
+                                <th>Hits</th>
+                                <th>User ID</th>
+                                <th>IP</th>
+                                <th>Referer</th>
+                                <th width=400>User Agent</th>
+                                <th>Url</th>
+                                <th>Last hit</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in hitsLogger.getTopUsersByRequests() %}
+                            <tr>
+                                <td>{{ data.hitsCount }}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.user_id }}{% endif %}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.client_ip }}{% endif %}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.referer }}{% endif %}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.user_agent }}{% endif %}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.fullURI }}{% endif %}</td>
+                                <td>{% if data.lastUserHit %}{{ data.lastUserHit.date_made | date('Y-m-d H:i:s') }}{% endif %}</td>
+                                <td>
+                                    {% if data.lastUserHit %}
+                                    <a href='{{ path('nacholibre.hits_logger.user.show', {id: data.lastUserHit.user_id}) }}' class='btn btn-primary'>Details</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </thead>
+                </table>
+            </div>
+        </div>
         <hr>
         {% for userAgentName, userAgentHitsData in hitsLogger.getBotHitsData() %}
-        <h2>{{ userAgentName }}</h2>
-        {{ macros.renderIPHitsTable(userAgentHitsData) }}
-        <hr>
+        <a name='{{ userAgentName }}' /></a>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">{{ userAgentName }}</h2>
+            </div>
+            <div class="panel-body">
+                {{ macros.renderIPHitsTable(userAgentHitsData) }}
+            </div>
+        </div>
         {% endfor %}
     </div>
 </div>

@@ -9,14 +9,17 @@
 
 {{ macros.renderIPHitsTable(ipData) }}
 <hr>
-<h2>Last clicks</h2>
+<h2>Last clicks recorded</h2>
 
-<table border="1" class="x">
-	<tr>
-		<th>URL</th>
-		<th>Referal</th>
-		<th>Time</th>
-	</tr>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>URL</th>
+            <th>Referal</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
     {% for clickData in hitsLogger.getIPLastClicks(ip) %}
 	<tr>
         <td>{{ clickData.url }}</td>
@@ -24,5 +27,6 @@
         <td>{{ clickData.time | date('Y-m-d H:i:s') }}</td>
 	</tr>
     {% endfor %}
+    </tbody>
 </table>
 {% endblock %}
