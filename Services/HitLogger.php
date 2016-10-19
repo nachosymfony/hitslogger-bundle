@@ -281,6 +281,10 @@ class HitLogger implements HitLoggerInterface {
             $user = $this->tokenStorage->getToken()->getUser();
         }
 
+        if ($user === 'anon.') {
+            $user = null;
+        }
+
         $fullURI = $request->getUri();
         $clientIP = $request->getClientIP();
         $userAgent = $request->headers->get('User-Agent');
