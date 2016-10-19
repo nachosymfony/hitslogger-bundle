@@ -1,0 +1,14 @@
+services:
+    nacholibre_services.hit_logger:
+        class: nacholibre\HitsLoggerBundle\Services\HitLogger
+        arguments: ["@service_container"]
+
+    nacholibre_listeners.request_listener:
+        class: nacholibre\HitsLoggerBundle\EventListener\HitLoggerListener
+        arguments: ["@nacholibre_services.hit_logger"]
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+#    nacholibre_hits_logger.example:
+#        class: nacholibre\HitsLoggerBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]
