@@ -197,7 +197,7 @@ class HitLogger implements HitLoggerInterface {
 
         $data = [];
         for ($i = 0; $i <= 20; $i++) {
-            $time = time() + ($i*86400);
+            $time = time() - ($i*86400);
 
             $hits = [];
             foreach($this->getBotUserAgents() as $botUA) {
@@ -541,7 +541,7 @@ class HitLogger implements HitLoggerInterface {
 
         $data = [];
         for ($i = 0; $i <= 20; $i++) {
-            $time = time() + ($i*86400);
+            $time = time() - ($i*86400);
             $unique = $this->getDayUniqueVisits($time);
             $reloads = $this->getDayAllVisits($time);
 
