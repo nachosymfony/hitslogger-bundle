@@ -28,5 +28,6 @@ class nacholibreHitsLoggerExtension extends Extension
         //$container->setParameter('nacholibre.hits_logger.site_identifier', $config['']);
         $container->setParameter('nacholibre.hits_logger.history_count', $config['history_count']);
         $container->setParameter('nacholibre.hits_logger.redis_service_name', $config['redis_service_name']);
+        $container->setParameter('nacholibre.hits_logger.redis_keys_prefix', $config['redis_keys_prefix']);
     }
 }

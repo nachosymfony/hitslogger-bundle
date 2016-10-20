@@ -15,8 +15,7 @@ class HitLogger implements HitLoggerInterface {
         $this->historyCount = $container->getParameter('nacholibre.hits_logger.history_count');
         $this->daysOffset = 0;
 
-        $indentificator = $container->getParameter('secret');
-        $this->siteUniqueIdentificator = md5($indentificator . 'a13c123c');
+        $this->siteUniqueIdentificator = $container->getParameter('nacholibre.hits_logger.redis_keys_prefix');
 
         $this->botUserAgents = [
             "YandexBot",

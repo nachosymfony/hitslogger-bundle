@@ -34,6 +34,12 @@ class Configuration implements ConfigurationInterface
                     ->info('The service name of the redis client used for this statistics.')
                     ->defaultValue('@snc_redis.default')
                 ->end()
+                ->scalarNode('redis_keys_prefix')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('Redis keys prefix.')
+                    ->defaultValue('st')
+                ->end()
             ->end()
         ;
 
