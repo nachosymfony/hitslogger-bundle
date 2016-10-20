@@ -46,13 +46,13 @@
                     <tbody>
                     <tr>
                         <td>Daily ({{ hitsLogger.getTime() | date('j M, Y') }})</td>
-                        <td align="right">{{ hitsLogger.getDayUniqueVisits() }}</td>
-                        <td align="right">{{ hitsLogger.getDayAllVisits() }}</td>
+                        <td align="right">{{ hitsLogger.getDayUniqueVisits() | number_format }}</td>
+                        <td align="right">{{ hitsLogger.getDayAllVisits() | number_format }}</td>
                     </tr>
                     <tr>
                         <td>Montly ({{ hitsLogger.getTime() | date('M Y') }})</td>
-                        <td align="right">{{ hitsLogger.getMonthUniqueVisits() }}</td>
-                        <td align="right">{{ hitsLogger.getMonthAllVisits() }}</td>
+                        <td align="right">{{ hitsLogger.getMonthUniqueVisits() | number_format }}</td>
+                        <td align="right">{{ hitsLogger.getMonthAllVisits() | number_format }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -81,16 +81,16 @@
                         {% for botUserAgent, hits in hitsLogger.getBotHits() %}
                         <tr>
                             <td>{{ botUserAgent }}</td>
-                            <td align="right">{{ hits.daily }}</td>
-                            <td align="right">{{ hits.monthly }}</td>
+                            <td align="right">{{ hits.daily | number_format }}</td>
+                            <td align="right">{{ hits.monthly | number_format }}</td>
                             <td><a href="#{{ botUserAgent }}">jump to data</a></td>
                         </tr>
                         {% endfor %}
                         <tr>
                             {% set stats = hitsLogger.getBotHitsStats() %}
                             <th>Total bots</th>
-                            <th>{{ stats.daily }}</th>
-                            <th>{{ stats.monthly }}</th>
+                            <th>{{ stats.daily | number_format }}</th>
+                            <th>{{ stats.monthly | number_format }}</th>
                             <th>&nbsp;</th>
                         </tr>
                     </tbody>
@@ -133,7 +133,7 @@
                         <tbody>
                             {% for data in hitsLogger.getTopUsersByRequests() %}
                             <tr>
-                                <td>{{ data.hitsCount }}</td>
+                                <td>{{ data.hitsCount | number_format }}</td>
                                 <td>{% if data.lastUserHit %}{{ data.lastUserHit.user_id }}{% endif %}</td>
                                 <td>{% if data.lastUserHit %}{{ data.lastUserHit.client_ip }}{% endif %}</td>
                                 <td>{% if data.lastUserHit %}{{ data.lastUserHit.referer }}{% endif %}</td>

@@ -21,7 +21,7 @@
                 <a href="http://whois.domaintools.com/{{ ip }}" target="dt" target='_blank'>{{ ip }}</a>&nbsp;
             </td>
             <td align="right">
-                {{ data.count }}
+                {{ data.count | number_format }}
             </td>
             <td>
                 {{ data.first | date(dateFormat) }}
