@@ -7,6 +7,17 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
 class DefaultController extends Controller {
     /**
+     * @Route("/charts", name="nacholibre.hits_logger.charts.show")
+     */
+    public function chartsAction() {
+        $hitsLogger = $this->get('nacholibre_services.hit_logger');
+
+        return $this->render('nacholibreHitsLoggerBundle:Default:charts.html.twig', [
+            'hitsLogger' => $hitsLogger,
+        ]);
+    }
+
+    /**
      * @Route("/{offsetDays}", name="nacholibre.hits_logger.show", defaults={"offsetDays": 0})
      */
     public function indexAction($offsetDays) {

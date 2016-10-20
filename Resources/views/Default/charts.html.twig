@@ -1,0 +1,164 @@
+{% extends "nacholibreAdminBundle::layout.html.twig" %}
+
+{% import 'nacholibreHitsLoggerBundle:Default:macros.html.twig' as macros %}
+
+{% block title 'Charts' %}
+
+{% block pageHeaderTitle 'Hits logger > Charts' %}
+
+{% block stylesheets %}
+{{ parent() }}
+{% include 'nacholibreHitsLoggerBundle:Default:styles.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+    <script type="text/javascript"
+                src="https://www.google.com/jsapi?autoload={
+    'modules':[{
+    'name':'visualization',
+    'version':'1',
+    'packages':['corechart']
+    }]
+    }"></script>
+<script>
+    $(function() {
+        google.setOnLoadCallback(function() {
+            drawUniqueVisitsChart();
+            drawReloadsChart();
+            drawBotHitsChart();
+        });
+
+        function drawUniqueVisitsChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Date', 'Unique Visits'],
+            {% for date, data in hitsLogger.getVisitsStatsByDay() %}
+            [
+            '{{ date | date('Y-m-d') }}',
+            {{ data.unique }},
+            ],
+            {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Visits',
+                curveType: 'function',
+                hAxis: {
+                    textStyle: {
+                        'fontSize': 9
+                    }
+                },
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('visitsChart'));
+
+            chart.draw(data, options);
+        }
+
+        function drawBotHitsChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Date', {% for bot in hitsLogger.getBotUserAgents() %}'{{ bot }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            {% for date, data in hitsLogger.getBotsHitsStatsByDay() %}
+            [
+            '{{ date | date('Y-m-d') }}',
+            {% for botUA, hits in data %}
+            {{ hits }},
+            {% endfor %}
+            ],
+            {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Visits',
+                curveType: 'function',
+                hAxis: {
+                    textStyle: {
+                        'fontSize': 9
+                    }
+                },
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('botHitsChart'));
+
+            chart.draw(data, options);
+        }
+
+        function drawReloadsChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Date', 'Reloads'],
+            {% for date, data in hitsLogger.getVisitsStatsByDay() %}
+            [
+            '{{ date | date('Y-m-d') }}',
+            {{ data.reloads }},
+            ],
+            {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Visits',
+                curveType: 'function',
+                hAxis: {
+                    textStyle: {
+                        'fontSize': 9
+                    }
+                },
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('reloadsChart'));
+
+            chart.draw(data, options);
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+{{ parent() }}
+<div class='row'>
+    <div class='col-md-6'>
+        <a href='{{ path('nacholibre.hits_logger.show') }}' class='btn btn-primary btn-lg'>Back</a>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Unique Visits Chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id='visitsChart'></div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Reloads Chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id='reloadsChart'></div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Bot hits chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id='botHitsChart'></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
