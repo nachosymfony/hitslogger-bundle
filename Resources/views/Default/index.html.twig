@@ -30,12 +30,11 @@
 
         function drawUniqueVisitsAndReloadsChart() {
             var data = google.visualization.arrayToDataTable([
-            ['Date', 'Unique Visits', 'Reloads'],
+            ['Date', 'Unique Visits'],
             {% for date, data in hitsLogger.getVisitsStatsByDay() %}
             [
             '{{ date | date('Y-m-d') }}',
             {{ data.unique }},
-            {{ data.reloads }},
             ],
             {% endfor %}
             ]);
