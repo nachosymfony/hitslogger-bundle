@@ -76,8 +76,10 @@ class HitLogger implements HitLoggerInterface {
         return $this->makeTime();
     }
 
-    private function generateDayKey() {
-        $time = $this->makeTime();
+    private function generateDayKey($time=false) {
+        if (!$time) {
+            $time = $this->makeTime();
+        }
 
         $dk = $this->getUniqueSiteIdentifier() . ":" . date("Ymd", $time);
 
@@ -104,20 +106,30 @@ class HitLogger implements HitLoggerInterface {
         return $mk;
     }
 
-    public function getDayUniqueVisits() {
-        $dk = $this->generateDayKey();
+    public function getDayUniqueVisits($time=false) {
+        $dk = $this->generateDayKey($time);
 
-        return $this->redis->get($dk . ":unique");
+        $visits = $this->redis->get($dk . ":unique");
+        if (!$visits) {
+            $visits = 0;
+        }
+
+        return $visits;
     }
 
-    public function getDayAllVisits() {
-        $dk = $this->generateDayKey();
+    public function getDayAllVisits($time=false) {
+        $dk = $this->generateDayKey($time);
 
-        return $this->redis->get($dk . ":all");
+        $visits = $this->redis->get($dk . ":all");
+        if (!$visits) {
+            $visits = 0;
+        }
+
+        return $visits;
     }
 
-    private function generateBotDayHitsKey($userAgent) {
-        return $this->generateDayKey() . ":all:" . $userAgent;
+    private function generateBotDayHitsKey($userAgent, $time=false) {
+        return $this->generateDayKey($time) . ":all:" . $userAgent;
     }
 
     private function generateBotMonthHitsKey($userAgent) {
@@ -145,10 +157,10 @@ class HitLogger implements HitLoggerInterface {
         $this->recordMonthHitBot($userAgent);
     }
 
-    public function getDayHitBot($userAgent) {
+    public function getDayHitBot($userAgent, $time=false) {
         $userAgent = strtolower($userAgent);
 
-        $hits = $this->redis->get($this->generateBotDayHitsKey($userAgent));
+        $hits = $this->redis->get($this->generateBotDayHitsKey($userAgent, $time));
 
         if (!$hits) {
             $hits = 0;
@@ -179,6 +191,26 @@ class HitLogger implements HitLoggerInterface {
         }
 
         return $res;
+    }
+
+    public function getBotsHitsStatsByDay() {
+        $now = time();
+
+        $data = [];
+        for ($i = 0; $i <= 20; $i++) {
+            $time = time() + ($i*86400);
+
+            $hits = [];
+            foreach($this->getBotUserAgents() as $botUA) {
+                $hits[$botUA] = $this->getDayHitBot($botUA, $time);
+            }
+
+            $data[$time] = $hits;
+        }
+
+        $data = array_reverse($data, true);
+
+        return $data;
     }
 
     public function getBotHitsStats() {
@@ -501,6 +533,26 @@ class HitLogger implements HitLoggerInterface {
             $ipdata = $this->redis->hgetall($click_key);
             $data[] = $ipdata;
         }
+
+        return $data;
+    }
+
+    public function getVisitsStatsByDay() {
+        $now = time();
+
+        $data = [];
+        for ($i = 0; $i <= 20; $i++) {
+            $time = time() + ($i*86400);
+            $unique = $this->getDayUniqueVisits($time);
+            $reloads = $this->getDayAllVisits($time);
+
+            $data[$time] = [
+                'unique' => $unique,
+                'reloads' => $reloads,
+            ];
+        }
+
+        $data = array_reverse($data, true);
 
         return $data;
     }

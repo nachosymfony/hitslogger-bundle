@@ -15,6 +15,82 @@
 </style>
 {% endblock %}
 
+{% block javascripts %}
+    <script type="text/javascript"
+                src="https://www.google.com/jsapi?autoload={
+    'modules':[{
+    'name':'visualization',
+    'version':'1',
+    'packages':['corechart']
+    }]
+    }"></script>
+<script>
+    $(function() {
+        google.setOnLoadCallback(function() {
+            drawUniqueVisitsAndReloadsChart();
+            drawBotHitsChart();
+        });
+
+        function drawUniqueVisitsAndReloadsChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Date', 'Unique Visits', 'Reloads'],
+            {% for date, data in hitsLogger.getVisitsStatsByDay() %}
+            [
+            '{{ date | date('Y-m-d') }}',
+            {{ data.unique }},
+            {{ data.reloads }},
+            ],
+            {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Visits',
+                curveType: 'function',
+                hAxis: {
+                    textStyle: {
+                        'fontSize': 9
+                    }
+                },
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('visitsChart'));
+
+            chart.draw(data, options);
+        }
+
+        function drawBotHitsChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Date', {% for bot in hitsLogger.getBotUserAgents() %}'{{ bot }}'{% if not loop.last %},{% endif %}{% endfor %}],
+            {% for date, data in hitsLogger.getBotsHitsStatsByDay() %}
+            [
+            '{{ date | date('Y-m-d') }}',
+            {% for botUA, hits in data %}
+            {{ hits }},
+            {% endfor %}
+            ],
+            {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Visits',
+                curveType: 'function',
+                hAxis: {
+                    textStyle: {
+                        'fontSize': 9
+                    }
+                },
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('botHitsChart'));
+
+            chart.draw(data, options);
+        }
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 {{ parent() }}
 <div class='row'>
@@ -22,6 +98,31 @@
         <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 0}) }}' class='btn btn-primary btn-sm {% if offsetDays == 0 %}active{% endif %}'>Today</a>
         <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 1}) }}' class='btn btn-primary btn-sm {% if offsetDays == 1 %}active{% endif %}'>Yesterday</a>
         <a href='{{ path('nacholibre.hits_logger.show', {'offsetDays': 2}) }}' class='btn btn-primary btn-sm {% if offsetDays == 2 %}active{% endif %}'>2 days ago</a>
+    </div>
+</div>
+<hr>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Visits Chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id='visitsChart'></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class='row'>
+    <div class='col-md-12'>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Bot hits chart</h3>
+            </div>
+            <div class="panel-body">
+                <div id='botHitsChart'></div>
+            </div>
+        </div>
     </div>
 </div>
 <hr>
