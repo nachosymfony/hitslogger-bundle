@@ -10,28 +10,4 @@
 <h2>Last user clicks recorded</h2>
 
 {{ macros.renderLastUserHitsTable(latestUserHits) }}
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>User ID</th>
-            <th>IP</th>
-            <th>Referer</th>
-            <th>User Agent</th>
-            <th>Url</th>
-            <th>Made</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for hit in latestUserHits %}
-        <tr>
-            <td>{{ hit.user_id }}</td>
-            <td>{{ hit.client_ip }}</td>
-            <td>{{ hit.referer }}</td>
-            <td>{{ hit.user_agent }}</td>
-            <td>{{ hit.fullURI }}</td>
-            <td>{{ hit.date_made | date('Y-m-d H:i:s') }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 {% endblock %}
