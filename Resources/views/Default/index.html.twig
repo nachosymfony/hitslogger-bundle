@@ -8,11 +8,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-<style>
-    .panel-title {
-        font-size:24px;
-    }
-</style>
+{% include 'nacholibreHitsLoggerBundle:Default:styles.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}

@@ -4,6 +4,11 @@
 
 {% block pageHeaderTitle 'IP Stats: ' ~ ip  %}
 
+{% block stylesheets %}
+{{ parent() }}
+{% include 'nacholibreHitsLoggerBundle:Default:styles.html.twig' %}
+{% endblock %}
+
 {% block content %}
 {{ parent() }}
 
