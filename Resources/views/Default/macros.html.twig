@@ -14,6 +14,7 @@
             </tr>
         </thead>
         <tbody>
+    {% set prefix = random(1000) %}
     {% for ip, data in visitsData %}
         <tr>
             <td>
@@ -31,8 +32,13 @@
             <td style='font-size:12px;'>
                 {{ data.ua }}
             </td>
-            <td style='font-size:12px;' class='dont-break-out'>
-                {{ data.referal }}
+            <td style='font-size:12px;'>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#referal_{{ loop.index }}_{{ prefix }}" aria-expanded="false" aria-controls="referal_{{ loop.index }}_{{ prefix }}">
+                    Show
+                </button>
+                <div class="collapse" id="referal_{{ loop.index }}_{{ prefix }}">
+                    {{ data.referal }}
+                </div>
             </td>
 
             <td>
