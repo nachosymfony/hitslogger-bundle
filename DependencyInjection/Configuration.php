@@ -24,7 +24,6 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->integerNode('history_count')
                     ->isRequired()
-                    ->cannotBeEmpty()
                     ->info('How many ip latest clicks to keep for each ip.')
                     ->defaultValue(50)
                 ->end()
